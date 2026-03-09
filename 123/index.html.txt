@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<title>數字迷宮遊戲</title>
+<style>
+body{font-family:sans-serif;text-align:center;background:#f5f5f5}
+#grid{display:grid;grid-template-columns:repeat(5,60px);gap:5px;justify-content:center;margin-top:20px}
+.cell{width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:white;border:2px solid #ccc;font-size:20px;cursor:pointer}
+.visited{background:#a5d6a7}
+.start{background:#90caf9}
+.end{background:#ffab91}
+</style>
+</head>
+<body>
+
+<h1>數字迷宮</h1>
+<p>目標數字：<span id="target"></span></p>
+<p>目前總和：<span id="sum">0</span></p>
+
+<div id="grid"></div>
+
+<p id="message"></p>
+<button onclick="location.reload()">重新開始</button>
+
+<script>
+const size=5
+const target=30
+const grid=document.getElementById('grid')
+const targetEl=document.getElementById('target')
+const sumEl=document.getElementById('sum')
+const msg=document.getElementById('message')
+
+let sum=0
+let visited=new Set()
+
+const numbers=[]
+for(let i=0;i<size*size;i++){
+ numbers.push(Math.floor(Math.random()*9)+1)
+}
+
+targetEl.textContent=target
+
+numbers.forEach((num,i)=>{
+ const cell=document.createElement('div')
+ cell.className='cell'
+ cell.textContent=num
+ cell.dataset.index=i
+ 
+ if(i===0) cell.classList.add('start')
+ if(i===size*size-1) cell.classList.add('end')
+
+ cell.onclick=()=>move(cell,num,i)
+ grid.appendChild(cell)
+})
+
+function neighbors(i){
+ const r=Math.floor(i/size)
+ const c=i%size
+ const n=[]
+ if(r>0) n.push(i-size)
+ if(r<size-1) n.push(i+size)
+ if(c>0) n.push(i-1)
+ if(c<size-1) n.push(i+1)
+ return n
+}
+
+function move(cell,num,i){
+ if(visited.size===0 && i!==0) return
+
+ if(visited.size>0){
+ const last=[...visited].pop()
+ if(!neighbors(last).includes(i)) return
+ }
+
+ if(visited.has(i)) return
+
+ visited.add(i)
+ sum+=num
+ cell.classList.add('visited')
+ sumEl.textContent=sum
+
+ if(i===size*size-1){
+  if(sum===target){
+   msg.textContent='成功！你找到正確路線！'
+  }else{
+   msg.textContent='到終點了，但總和不等於目標數字。'
+  }
+ }
+
+ if(sum>target){
+  msg.textContent='總和超過目標數字，失敗！'
+ }
+}
+</script>
+
+</body>
+</html>
